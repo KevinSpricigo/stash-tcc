@@ -1,0 +1,7 @@
+import os
+from banco.supabase_client import SupabaseClient
+
+SUPABASE_URL = "https://xagqlcyceoxyghihtzru.supabase.co"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhhZ3FsY3ljZW94eWdoaWh0enJ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzA4MzY2NzcsImV4cCI6MjA0NjQxMjY3N30._nBRoD4m-RzhTtB8fFrmsIykVeTLT2wz5uYVLm44E3A"
+
+supabase = SupabaseClient(SUPABASE_URL, SUPABASE_KEY)
