@@ -153,32 +153,16 @@ async def home_usuario(page: ft.Page):
             controls=[
                 ft.Row(
                     controls=[
-                        cards_pronto(
-                            'usuario/eletricista.png', 
-                            "Eletricistas", 
-                            lambda e: page.go('/listar-eletricistas')
-                        ),
-                        cards_pronto(
-                            'usuario/pintor.png',
-                            "Pintores", 
-                            lambda e: page.go('/listar-pintores')
-                        ),
+                        cards_pronto('usuario/eletricista.png', "Eletricistas", lambda e: page.go('/listar-eletricistas')),
+                        cards_pronto('usuario/pintor.png', "Pintores", lambda e: page.go('/listar-pintores')),
                     ],
                     alignment=ft.MainAxisAlignment.CENTER,
                     spacing=20
                 ),
                 ft.Row(
                     controls=[
-                        cards_pronto(
-                            'usuario/jardineiro.png',
-                            "Jardineiros", 
-                            lambda e: page.go('/listar-jardineiros')
-                        ),
-                        cards_pronto(
-                            ft.icons.LOCK, 
-                            "", 
-                            disabled=True
-                        ),
+                        cards_pronto('usuario/jardineiro.png', "Jardineiros", lambda e: page.go('/listar-jardineiros')),
+                        cards_pronto(ft.icons.LOCK, "", disabled=True),
                     ],
                     alignment=ft.MainAxisAlignment.CENTER,
                     spacing=20
@@ -193,27 +177,44 @@ async def home_usuario(page: ft.Page):
 
     try:
         mais_pedidos_data = supabase.table('pessoa_servico')\
-            .select('''
-                servicos (
-                    nome,
-                    valor,
-                    profissionais (nome)
-                ),
-                count
-            ''')\
-            .order('count', desc=True)\
-            .limit(1)\
+            .select('id_servico')\
             .execute()
 
         if mais_pedidos_data.data:
-            servico_popular = mais_pedidos_data.data[0]
-            nome_servico = servico_popular['servicos']['nome']
-            valor_servico = servico_popular['servicos']['valor']
-            nome_prof = servico_popular['servicos']['profissionais']['nome']
+            contagem_servicos = {}
+            for registro in mais_pedidos_data.data:
+                id_servico = registro['id_servico']
+                if id_servico in contagem_servicos:
+                    contagem_servicos[id_servico] += 1
+                else:
+                    contagem_servicos[id_servico] = 1
+
+            if contagem_servicos:
+                id_servico_mais_pedido = max(contagem_servicos.items(), key=lambda x: x[1])[0]
+
+                servico_popular = supabase.table('servicos')\
+                    .select('*, profissionais(nome)')\
+                    .eq('id_servico', id_servico_mais_pedido)\
+                    .execute()
+
+                if servico_popular.data:
+                    servico = servico_popular.data[0]
+                    nome_servico = servico['nome']
+                    valor_servico = servico['valor']
+                    nome_prof = servico['profissionais']['nome']
+                else:
+                    nome_servico = "Serviço"
+                    valor_servico = 0
+                    nome_prof = "Profissional"
+            else:
+                nome_servico = "Serviço"
+                valor_servico = 0
+                nome_prof = "Profissional"
         else:
             nome_servico = "Serviço"
             valor_servico = 0
             nome_prof = "Profissional"
+
     except Exception as e:
         print(f"Erro ao buscar serviços populares: {e}")
         nome_servico = "Serviço"
