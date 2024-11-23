@@ -153,11 +153,24 @@ async def registro(page: ft.Page):
 
             senha_hash = pbkdf2_sha256.hash(senha)
 
+            resultado_endereco = supabase.table('endereco').insert({
+                'cidade': 'Criciúma',  
+                'bairro': 'Não Especificado', 
+                'rua': 'Não Especificado',     
+                'numero': 0 
+            }).execute()
+            
+            if not resultado_endereco.data:
+                raise Exception("Falha ao criar endereço")
+
+            id_endereco = resultado_endereco.data[0]['id_endereco']
+
             dados_usuario = {
                 "nome": nome,
                 "sobrenome": sobrenome,
                 "telefone": telefone,
-                "senha": senha_hash
+                "senha": senha_hash,
+                "id_endereco": id_endereco
             }
 
             resultado = supabase.table('pessoas')\

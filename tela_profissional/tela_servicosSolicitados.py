@@ -7,20 +7,19 @@ async def servicosSolicitados(page: ft.Page):
         page.session_data = {}
         page.go('/login')
         return
-    
+
     id_profissional = page.session_data.get("user_id")
     if not id_profissional:
         page.go('/login')
         return
-    
+
     page.fonts = {
         'Poppins Medium': 'fonts/Poppins-Medium.ttf',
         'Poppins Regular': 'fonts/Poppins-Regular.ttf'
     }
-    
     page.bgcolor = '#FFFFFF'
     page.scroll = ft.ScrollMode.AUTO
-        
+
     def handle_aceitar(e, ordem_id):
         try:
             supabase.table('ordens')\
@@ -74,21 +73,16 @@ async def servicosSolicitados(page: ft.Page):
             pessoa = ordem['pessoas']
             endereco = pessoa['endereco']
 
-            pessoa_servico = supabase.table('pessoa_servico')\
-                .select('*')\
-                .eq('id_pessoa', pessoa['id_pessoa'])\
-                .eq('id_servico', servico['id_servico'])\
-                .eq('data', ordem['data_pedido'])\
-                .execute()
+            valor_total = servico['valor']
 
-            pagamento = None
-            if pessoa_servico.data:
+            if ordem.get('id_pessoa_servico'):
                 pagamento = supabase.table('pagamentos')\
                     .select('valor')\
-                    .eq('id_pessoa_servico', pessoa_servico.data[0]['id_pessoa_servico'])\
+                    .eq('id_pessoa_servico', ordem['id_pessoa_servico'])\
                     .execute()
-
-            valor_total = pagamento.data[0]['valor'] if pagamento and pagamento.data else servico['valor']
+                
+                if pagamento.data and pagamento.data[0].get('valor'):
+                    valor_total = pagamento.data[0]['valor']
 
             servico_card = ft.Container(
                 content=ft.Row(
@@ -145,9 +139,15 @@ async def servicosSolicitados(page: ft.Page):
                                     font_family='Poppins Regular'
                                 ),
                                 ft.Text(
-                                    value=f"R$ {valor_total:.2f}", 
+                                    value=f"1h R$ {servico['valor']:.2f}", 
                                     size=10, 
                                     color='black', 
+                                    font_family='Poppins Regular'
+                                ),
+                                ft.Text(
+                                    value=f"Total R$ {valor_total:.2f}", 
+                                    size=10, 
+                                    color='#2ECC71', 
                                     font_family='Poppins Regular'
                                 ),
                                 ft.Row(
@@ -172,7 +172,7 @@ async def servicosSolicitados(page: ft.Page):
                                 )
                             ],
                             alignment='center',
-                            spacing=0.5
+                            spacing=5
                         )
                     ],
                     alignment='start',

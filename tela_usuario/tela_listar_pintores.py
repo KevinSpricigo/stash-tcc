@@ -28,9 +28,8 @@ async def listar_pintores(page: ft.Page):
         profissionais = supabase.table('profissionais')\
             .select('id_profissional, nome, sobrenome, status')\
             .eq('profissao', 'Pintor')\
+            .eq('status', 'Disponível')\
             .execute()
-
-        print("Debug - Profissionais encontrados:", profissionais.data)
 
         if not profissionais.data:
             grid.content.controls.append(
@@ -41,7 +40,8 @@ async def listar_pintores(page: ft.Page):
                         color='black',
                         text_align=ft.TextAlign.CENTER
                     ),
-                    margin=ft.margin.only(top=50)
+                    margin=ft.margin.only(top=50),
+                    alignment=ft.alignment.center
                 )
             )
         else:
@@ -50,8 +50,6 @@ async def listar_pintores(page: ft.Page):
                     .select('id_servico, nome, descricao, valor')\
                     .eq('id_profissional', profissional['id_profissional'])\
                     .execute()
-
-                print(f"Debug - Serviços do profissional {profissional['nome']}:", servicos.data)
 
                 if servicos.data:
                     for servico in servicos.data:
@@ -119,7 +117,7 @@ async def listar_pintores(page: ft.Page):
                                                     icon_size=16,
                                                     tooltip='Contratar serviço',
                                                     on_click=lambda e, s=servico['id_servico']: contratar(e, s)
-                                                ) if profissional['status'] == 'Disponível' else None
+                                                )
                                             ],
                                             spacing=5
                                         ),
@@ -150,26 +148,12 @@ async def listar_pintores(page: ft.Page):
                         )
                         grid.content.controls.append(card)
 
-            if not grid.content.controls:
-                grid.content.controls.append(
-                    ft.Container(
-                        content=ft.Text(
-                            "Nenhum serviço cadastrado para os pintores disponíveis.",
-                            size=16,
-                            color='black',
-                            text_align=ft.TextAlign.CENTER
-                        ),
-                        margin=ft.margin.only(top=50),
-                        alignment=ft.alignment.center
-                    )
-                )
-
     except Exception as e:
         print(f"Erro ao listar pintores: {e}")
         grid.content.controls.append(
             ft.Container(
                 content=ft.Text(
-                    f"Erro ao carregar profissionais: {str(e)}",
+                    f"Erro ao carregar pintores: {str(e)}",
                     color="red",
                     size=16,
                     text_align=ft.TextAlign.CENTER
