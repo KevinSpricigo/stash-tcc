@@ -1,0 +1,8 @@
+{
+    "name" : "STASH - 1.0",
+    "short_name" : "STASH",
+    "start_url" : ".",
+    "display" : "standalone",
+    "background_color" : "#224632",
+    "orientation" : "natural"
+}
