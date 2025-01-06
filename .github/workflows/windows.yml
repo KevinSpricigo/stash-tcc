@@ -1,0 +1,46 @@
+name: Build Windows App
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: 3.12.5
+    
+    - name: Install Python packages
+      run: |
+        pip install flet==0.24.1
+        pip install requests
+        pip install passlib
+    
+    - name: Setup Visual Studio
+      uses: microsoft/setup-msbuild@v2
+      with:
+        vs-version: '17.0'
+    
+    - name: Install Visual C++ Build Tools
+      run: |
+        choco install visualstudio2022-workload-vctools --no-progress
+    
+    - name: Set up Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.24.0'
+        channel: 'stable'
+    
+    - name: Build Windows Executable
+      run: flet build windows
+    
+    - name: Upload Windows Executable
+      uses: actions/upload-artifact@v4
+      with:
+        name: app-windows
+        path: build/windows/
