@@ -62,10 +62,10 @@ Stash é um aplicativo móvel desenvolvido para conectar usuários a profissiona
 ## Tecnologias Utilizadas 💻
 
 - **Frontend:**
-  - Python
   - Flet (Framework UI)
   
 - **Backend:**
+  - Python
   - PostgreSQL
   - Supabase
   
